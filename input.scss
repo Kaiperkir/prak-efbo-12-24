@@ -1,0 +1,33 @@
+$primary-color: #3498db;
+$font-size: 16px;
+
+@mixin button-color($color) {
+  padding: 10px 14px;
+  background: $color;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+$theme-dark: true;
+
+.card {
+  padding: 16px;
+  
+  @if $theme-dark {
+    background: #222;
+    color: white;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  &--accent {
+    border: 2px solid $primary-color;
+  }
+  
+  .btn {
+    @include button-color($primary-color);
+  }
+}
