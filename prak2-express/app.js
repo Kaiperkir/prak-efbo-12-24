@@ -1,108 +1,89 @@
 const express = require('express');
+const cors = require('cors');
+const { nanoid } = require('nanoid');
 const app = express();
 const port = 3000;
 
-// Middleware для парсинга JSON
+// Middleware
 app.use(express.json());
+app.use(cors({
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
-// Middleware для парсинга данных из форм
-app.use(express.urlencoded({ extended: false }));
-
-// Данные (имитация базы данных)
+// Товары (минимум 10)
 let goods = [
-    { id: 1, name: 'Чай черный', price: 150 },
-    { id: 2, name: 'Кофе молотый', price: 400 }
+    { id: nanoid(6), name: 'Чай черный', category: 'Напитки', description: 'Классический черный чай', price: 150, stock: 50 },
+    { id: nanoid(6), name: 'Кофе молотый', category: 'Напитки', description: 'Арабика свежей обжарки', price: 400, stock: 30 },
+    { id: nanoid(6), name: 'Сахар', category: 'Бакалея', description: 'Сахар белый 1кг', price: 85, stock: 100 },
+    { id: nanoid(6), name: 'Печенье овсяное', category: 'Сладости', description: 'Диетическое печенье', price: 120, stock: 45 },
+    { id: nanoid(6), name: 'Шоколад', category: 'Сладости', description: 'Горький шоколад 72%', price: 250, stock: 20 },
+    { id: nanoid(6), name: 'Мёд', category: 'Натуральные продукты', description: 'Цветочный мёд 500г', price: 350, stock: 15 },
+    { id: nanoid(6), name: 'Орехи кешью', category: 'Снеки', description: 'Жареные без соли 200г', price: 450, stock: 25 },
+    { id: nanoid(6), name: 'Чай зелёный', category: 'Напитки', description: 'Зелёный чай с жасмином', price: 220, stock: 40 },
+    { id: nanoid(6), name: 'Сухофрукты', category: 'Снеки', description: 'Микс сухофруктов 300г', price: 300, stock: 35 },
+    { id: nanoid(6), name: 'Какао', category: 'Напитки', description: 'Какао-порошок 250г', price: 180, stock: 60 }
 ];
 
-// ==========================================
-// МАРШРУТЫ
-// ==========================================
-
-// Главная страница
+// Главная
 app.get('/', (req, res) => {
-    res.send('API для управления товарами. Доступные маршруты: /goods');
+    res.json({ message: 'API интернет-магазина' });
 });
 
-// 1. Просмотр всех товаров (GET)
-app.get('/goods', (req, res) => {
-    res.json(goods);
-});
+// GET все товары
+app.get('/goods', (req, res) => res.json(goods));
 
-// 2. Просмотр товара по ID (GET)
+// GET товар по ID
 app.get('/goods/:id', (req, res) => {
-    const id = +req.params.id;
-    const item = goods.find(i => i.id === id);
-    
-    if (!item) {
-        return res.status(404).json({ error: 'Товар не найден' });
-    }
-    
+    const item = goods.find(i => i.id === req.params.id);
+    if (!item) return res.status(404).json({ error: 'Товар не найден' });
     res.json(item);
 });
 
-// 3. Добавление нового товара (POST)
+// POST создать товар
 app.post('/goods', (req, res) => {
-    const { name, price } = req.body;
-    
-    // Проверка обязательных полей
-    if (!name || !price) {
+    const { name, category, description, price, stock } = req.body;
+    if (!name || price === undefined) {
         return res.status(400).json({ error: 'Название и цена обязательны' });
     }
-    
-    // Создаем новый товар
     const newItem = {
-        id: Date.now(),
-        name: name,
-        price: Number(price)
+        id: nanoid(6),
+        name: name.trim(),
+        category: category || 'Без категории',
+        description: description || '',
+        price: Number(price),
+        stock: Number(stock) || 0
     };
-    
-    // Добавляем в массив
     goods.push(newItem);
-    
-    // Возвращаем созданный товар со статусом 201
     res.status(201).json(newItem);
 });
 
-// 4. Обновление товара (PATCH)
+// PATCH обновить товар
 app.patch('/goods/:id', (req, res) => {
-    const id = +req.params.id;
-    const item = goods.find(i => i.id === id);
+    const item = goods.find(i => i.id === req.params.id);
+    if (!item) return res.status(404).json({ error: 'Товар не найден' });
     
-    if (!item) {
-        return res.status(404).json({ error: 'Товар не найден' });
-    }
-    
-    // Обновляем поля, если они переданы
-    if (req.body.name !== undefined) {
-        item.name = req.body.name;
-    }
-    
-    if (req.body.price !== undefined) {
-        item.price = Number(req.body.price);
-    }
+    const { name, category, description, price, stock } = req.body;
+    if (name !== undefined) item.name = name.trim();
+    if (category !== undefined) item.category = category;
+    if (description !== undefined) item.description = description;
+    if (price !== undefined) item.price = Number(price);
+    if (stock !== undefined) item.stock = Number(stock);
     
     res.json(item);
 });
 
-// 5. Удаление товара (DELETE)
+// DELETE удалить товар
 app.delete('/goods/:id', (req, res) => {
-    const id = +req.params.id;
-    
-    // Сохраняем исходную длину массива
     const initialLength = goods.length;
-    
-    // Фильтруем массив, удаляя товар с указанным ID
-    goods = goods.filter(i => i.id !== id);
-    
-    // Проверяем, был ли товар найден и удален
+    goods = goods.filter(i => i.id !== req.params.id);
     if (goods.length === initialLength) {
         return res.status(404).json({ error: 'Товар не найден' });
     }
-    
-    res.json({ message: 'Товар удален' });
+    res.status(204).send();
 });
 
-// Запуск сервера
 app.listen(port, () => {
-    console.log(`Сервер запущен на: http://localhost:${port}`);
+    console.log(`🚀 Сервер запущен: http://localhost:${port}`);
 });

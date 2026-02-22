@@ -6,6 +6,8 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "cors": "^2.8.6",
+    "express": "^4.19.2",
+    "nanoid": "^5.1.6"
   }
 }
