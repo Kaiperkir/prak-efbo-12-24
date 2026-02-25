@@ -6,6 +6,8 @@ export default function UserModal({ open, mode, initialGood, onClose, onSubmit }
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
     const [stock, setStock] = useState("");
+    const [imageFile, setImageFile] = useState(null); // ← новое состояние
+    const [preview, setPreview] = useState(initialGood?.image || null); // ← превью
 
     useEffect(() => {
         if (!open) return;
@@ -14,7 +16,18 @@ export default function UserModal({ open, mode, initialGood, onClose, onSubmit }
         setDescription(initialGood?.description ?? "");
         setPrice(initialGood?.price != null ? String(initialGood.price) : "");
         setStock(initialGood?.stock != null ? String(initialGood.stock) : "");
+        setPreview(initialGood?.image || null);
+        setImageFile(null);
     }, [open, initialGood]);
+
+    // ← обработчик выбора файла
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setPreview(URL.createObjectURL(file));
+        }
+    };
 
     if (!open) return null;
 
@@ -36,14 +49,27 @@ export default function UserModal({ open, mode, initialGood, onClose, onSubmit }
             return;
         }
 
-        onSubmit({
-            id: initialGood?.id,
-            name: trimmed,
-            category: category.trim(),
-            description: description.trim(),
-            price: parsedPrice,
-            stock: parsedStock,
-        });
+        // ← Отправляем FormData если есть файл, иначе обычный объект
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append('name', trimmed);
+            formData.append('category', category.trim());
+            formData.append('description', description.trim());
+            formData.append('price', parsedPrice);
+            formData.append('stock', parsedStock);
+            formData.append('image', imageFile);
+            
+            onSubmit(formData, true); // ← флаг isFormData
+        } else {
+            onSubmit({
+                id: initialGood?.id,
+                name: trimmed,
+                category: category.trim(),
+                description: description.trim(),
+                price: parsedPrice,
+                stock: parsedStock,
+            }, false);
+        }
     };
 
     return (
@@ -57,6 +83,29 @@ export default function UserModal({ open, mode, initialGood, onClose, onSubmit }
                 </div>
 
                 <form className="form" onSubmit={handleSubmit}>
+                    {/* 👇 Поле загрузки картинки */}
+                    <label className="label">
+                        Картинка товара
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            style={{ marginTop: 8 }}
+                        />
+                        {preview && (
+                            <img 
+                                src={preview.startsWith('blob:') ? preview : `http://localhost:3000${preview}`}
+                                alt="Preview"
+                                style={{ 
+                                    width: 100, height: 100, 
+                                    objectFit: 'cover', 
+                                    borderRadius: 8,
+                                    marginTop: 8 
+                                }}
+                            />
+                        )}
+                    </label>
+
                     <label className="label">
                         Название товара
                         <input

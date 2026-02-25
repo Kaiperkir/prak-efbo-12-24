@@ -1,118 +1,124 @@
 import React, { useEffect, useState } from "react";
-import "./UsersPage.css";
 import UsersList from "../../components/UsersList";
 import UserModal from "../../components/UserModal";
 import { api } from "../../api";
+import "./UsersPage.css";
 
 export default function UsersPage() {
     const [goods, setGoods] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("create");
-    const [editingGood, setEditingGood] = useState(null);
+    const [currentGood, setCurrentGood] = useState(null);
 
-    useEffect(() => {
-        loadGoods();
-    }, []);
-
-    const loadGoods = async () => {
+    const fetchGoods = async () => {
         try {
             setLoading(true);
             const data = await api.getGoods();
             setGoods(data);
+            setError(null);
         } catch (err) {
-            console.error(err);
-            alert("Ошибка загрузки товаров");
+            console.error("Ошибка загрузки товаров:", err);
+            setError("Не удалось загрузить товары. Проверьте, запущен ли сервер на порту 3000");
         } finally {
             setLoading(false);
         }
     };
 
-    const openCreate = () => {
+    useEffect(() => {
+        fetchGoods();
+    }, []);
+
+    const openCreateModal = () => {
         setModalMode("create");
-        setEditingGood(null);
+        setCurrentGood(null);
         setModalOpen(true);
     };
 
-    const openEdit = (good) => {
+    const openEditModal = (good) => {
         setModalMode("edit");
-        setEditingGood(good);
+        setCurrentGood(good);
         setModalOpen(true);
     };
 
     const closeModal = () => {
         setModalOpen(false);
-        setEditingGood(null);
+        setCurrentGood(null);
+    };
+
+    const handleSubmit = async (data, isFormData) => {
+        try {
+            if (modalMode === "create") {
+                await api.createGood(data, isFormData);
+            } else {
+                await api.updateGood(data.id, data, isFormData);
+            }
+            await fetchGoods();
+            closeModal();
+        } catch (err) {
+            console.error("Ошибка при сохранении товара:", err);
+            alert("Не удалось сохранить товар: " + (err.response?.data?.error || err.message));
+        }
     };
 
     const handleDelete = async (id) => {
-        const ok = window.confirm("Удалить товар?");
-        if (!ok) return;
+        if (!window.confirm("Удалить этот товар?")) return;
+        
         try {
             await api.deleteGood(id);
-            setGoods((prev) => prev.filter((g) => g.id !== id));
+            await fetchGoods();
         } catch (err) {
-            console.error(err);
-            alert("Ошибка удаления товара");
+            console.error("Ошибка при удалении:", err);
+            alert("Не удалось удалить товар");
         }
     };
 
-    const handleSubmitModal = async (payload) => {
-        try {
-            if (modalMode === "create") {
-                const newGood = await api.createGood(payload);
-                setGoods((prev) => [...prev, newGood]);
-            } else {
-                const updatedGood = await api.updateGood(payload.id, payload);
-                setGoods((prev) =>
-                    prev.map((g) => (g.id === payload.id ? updatedGood : g))
-                );
-            }
-            closeModal();
-        } catch (err) {
-            console.error(err);
-            alert("Ошибка сохранения товара");
-        }
-    };
+    if (loading) {
+        return (
+            <div className="page">
+                <div className="page__header">
+                    <h1 className="page__title">🛒 Интернет-магазин</h1>
+                </div>
+                <div className="loading">Загрузка товаров...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="page">
-            <header className="header">
-                <div className="header__inner">
-                    <div className="brand">Internet Store</div>
-                    <div className="header__right">React + Express</div>
-                </div>
-            </header>
+            <div className="page__header">
+                <h1 className="page__title">🛒 Интернет-магазин</h1>
+                <button className="btn btn--primary" onClick={openCreateModal}>
+                    + Добавить товар
+                </button>
+            </div>
 
-            <main className="main">
-                <div className="container">
-                    <div className="toolbar">
-                        <h1 className="title">Товары</h1>
-                        <button className="btn btn--primary" onClick={openCreate}>
-                            + Создать
-                        </button>
-                    </div>
-
-                    {loading ? (
-                        <div className="empty">Загрузка...</div>
-                    ) : (
-                        <UsersList goods={goods} onEdit={openEdit} onDelete={handleDelete} />
-                    )}
+            {error && (
+                <div className="error" style={{ 
+                    background: '#ffebee', 
+                    color: '#c62828', 
+                    padding: '12px 16px', 
+                    borderRadius: 8,
+                    marginBottom: 16 
+                }}>
+                    ⚠️ {error}
                 </div>
-            </main>
+            )}
 
-            <footer className="footer">
-                <div className="footer__inner">
-                    © {new Date().getFullYear()} Internet Store
-                </div>
-            </footer>
+            <UsersList 
+                goods={goods} 
+                onEdit={openEditModal} 
+                onDelete={handleDelete} 
+            />
 
             <UserModal
                 open={modalOpen}
                 mode={modalMode}
-                initialGood={editingGood}
+                initialGood={currentGood}
                 onClose={closeModal}
-                onSubmit={handleSubmitModal}
+                onSubmit={handleSubmit}
             />
         </div>
     );

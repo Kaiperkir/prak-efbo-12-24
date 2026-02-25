@@ -4,7 +4,29 @@ export default function UserItem({ good, onEdit, onDelete }) {
     return (
         <div className="userRow">
             <div className="userMain">
-                {/* 👇 Было: g.id, g.name... Надо: good.id, good.name */}
+                {/* 👇 Картинка товара */}
+                <div className="userImage">
+                    {good.image ? (
+                        <img 
+                            src={`http://localhost:3000${good.image}`} 
+                            alt={good.name}
+                            style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }}
+                        />
+                    ) : (
+                        <div style={{ 
+                            width: 60, height: 60, 
+                            background: '#f0f0f0', 
+                            borderRadius: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 24
+                        }}>
+                            📦
+                        </div>
+                    )}
+                </div>
+                
                 <div className="userId">#{good.id.slice(0, 6)}</div>
                 <div className="userName">{good.name}</div>
                 <div className="userAge">{good.category}</div>
