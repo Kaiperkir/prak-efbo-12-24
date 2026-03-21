@@ -1,0 +1,37 @@
+@primary-color: #3498db;
+@font-size: 16px;
+
+.button-color(@color) {
+  padding: 10px 14px;
+  background: @color;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.theme-dark() {
+  body {
+    background-color: #333;
+    color: white;
+  }
+}
+
+.theme-dark();
+
+.card {
+  padding: 16px;
+  background: #222;
+  color: white;
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  &--accent {
+    border: 2px solid @primary-color;
+  }
+  
+  .btn {
+    .button-color(@primary-color);
+  }
+}

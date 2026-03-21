@@ -1,0 +1,14 @@
+[
+  {
+    "id": "SHZxFL",
+    "email": "admin@test.com",
+    "password": "$2b$10$Njkdn7RFO9M2o3LF5Q/3AeXaAIxHDh4n780iSla90wWroY16.iy6i",
+    "role": "admin"
+  },
+  {
+    "id": "FjyXWY",
+    "email": "kperekalskij@gmail.com",
+    "password": "$2b$10$BTjfGdwZXObBdInFyp535.u3jSs1cuXjfoGQWlImwrONFQpz4HCDG",
+    "role": "admin"
+  }
+]

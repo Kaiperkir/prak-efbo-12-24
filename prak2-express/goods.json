@@ -1,0 +1,74 @@
+[
+  {
+    "id": "EgzISc",
+    "name": "ппп",
+    "category": "рапарп",
+    "description": "рпроп",
+    "price": 200,
+    "stock": 180,
+    "image": "/uploads/good_eeZ-bo_1774076931755.jpg"
+  },
+  {
+    "id": "Gi5owi",
+    "name": "браслет",
+    "category": "украшения",
+    "description": "",
+    "price": 250000,
+    "stock": 3,
+    "image": "/uploads/good_WVea6b_1774077658149.jpg"
+  },
+  {
+    "id": "f-4sfC",
+    "name": "сникерс",
+    "category": "сладости",
+    "description": "",
+    "price": 100,
+    "stock": 50,
+    "image": "/uploads/good_3mJ7Mn_1774077830181.png"
+  },
+  {
+    "id": "u-NpQz",
+    "name": "видеокарта",
+    "category": "запчасти",
+    "description": "",
+    "price": 150000,
+    "stock": 3,
+    "image": "/uploads/good_Zwa9-r_1774077882648.png"
+  },
+  {
+    "id": "S7cspb",
+    "name": "видеокарта 2",
+    "category": "запчасти",
+    "description": "",
+    "price": 180000,
+    "stock": 4,
+    "image": "/uploads/good_WbM924_1774077911608.png"
+  },
+  {
+    "id": "zy1XBp",
+    "name": "порш",
+    "category": "машина",
+    "description": "",
+    "price": 20000000,
+    "stock": 7,
+    "image": "/uploads/good_ZAftz6_1774078192956.png"
+  },
+  {
+    "id": "l_iiU0",
+    "name": "кадастровая карта",
+    "category": "геодизис",
+    "description": "",
+    "price": 10000,
+    "stock": 1,
+    "image": "/uploads/good_SEyw5g_1774078285137.png"
+  },
+  {
+    "id": "enRKZ7",
+    "name": "монитор",
+    "category": "монитор",
+    "description": "",
+    "price": 10000,
+    "stock": 50,
+    "image": "/uploads/good_h9r0IV_1774078644241.jpg"
+  }
+]
